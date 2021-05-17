@@ -18,13 +18,18 @@
 
 package fuzzy;
 
+import fuzzy.dtos.Person;
 import fuzzy.operators.FuzzySelect;
 import fuzzy.operators.interfaces.IFuzzySelect;
+import fuzzy.operators.projections.PersonProjection;
 import fuzzy.variables.AlphabeticCharacter;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.operators.DataSource;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Skeleton for a Flink Streaming Job.
@@ -44,19 +49,28 @@ public class StreamingJob {
 		// set up the streaming execution environment
 		final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-		DataStream<String> dataStream = env
-				.readTextFile("src/main/resources/text.txt");
+		List<Person> input = Arrays.asList(
+				new Person(0, "arek", 11),
+				new Person(1, "marek", 26),
+				new Person(2, "darek", 50)
+		);
+		DataStream<Person> inputDataStream = env.fromCollection(input);
 
-		IFuzzySelect<AlphabeticCharacter, String> fuzzySelect = new FuzzySelect<AlphabeticCharacter, String>();
+		IFuzzySelect<PersonProjection> fuzzySelect = new FuzzySelect<PersonProjection>();
 
-		DataStream<AlphabeticCharacter> outDataStream = fuzzySelect.transform(dataStream, new MapFunction<String, AlphabeticCharacter>() {
+		/*DataStream<AlphabeticCharacter> outDataStream = fuzzySelect.transform(dataStream, new MapFunction<String, AlphabeticCharacter>() {
 			@Override
 			public AlphabeticCharacter map(String value) {
+				PersonWithLingtoReturn
+						.lingValue
 				return new AlphabeticCharacter(value);
 			}
-		});
+		});*/
 
-		dataStream.print();
+		//TODO: do zmiany to podanie jako argument new PersonProjection()
+		DataStream<PersonProjection> outDataStream = fuzzySelect.transform(inputDataStream, new PersonProjection());
+
+		inputDataStream.print();
 
 		outDataStream.print();
 
