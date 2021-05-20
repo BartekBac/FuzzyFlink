@@ -20,7 +20,11 @@ package fuzzy;
 
 import fuzzy.dtos.Person;
 import fuzzy.operators.FuzzySelect;
+import fuzzy.operators.FuzzyWhere;
+import fuzzy.operators.YoungPeopleFilter;
+import fuzzy.operators.interfaces.IFuzzyFilter;
 import fuzzy.operators.interfaces.IFuzzySelect;
+import fuzzy.operators.interfaces.IFuzzyWhere;
 import fuzzy.operators.projections.PersonProjection;
 import fuzzy.variables.AlphabeticCharacter;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -30,6 +34,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import java.util.Arrays;
 import java.util.List;
+
 
 /**
  * Skeleton for a Flink Streaming Job.
@@ -50,28 +55,24 @@ public class StreamingJob {
 		final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
 		List<Person> input = Arrays.asList(
-				new Person(0, "arek", 11),
+				new Person(0, "arek", 14),
 				new Person(1, "marek", 26),
 				new Person(2, "darek", 50)
 		);
 		DataStream<Person> inputDataStream = env.fromCollection(input);
 
-		IFuzzySelect<PersonProjection> fuzzySelect = new FuzzySelect<PersonProjection>();
+		IFuzzyFilter youngPeopleFilter = new YoungPeopleFilter();
+		youngPeopleFilter.setLowerBound(13);
+		youngPeopleFilter.setUpperBound(20);
+		youngPeopleFilter.setMembershipCoefficient(0.5);
+		IFuzzyWhere<Person> fuzzyWhere = new FuzzyWhere();
 
-		/*DataStream<AlphabeticCharacter> outDataStream = fuzzySelect.transform(dataStream, new MapFunction<String, AlphabeticCharacter>() {
-			@Override
-			public AlphabeticCharacter map(String value) {
-				PersonWithLingtoReturn
-						.lingValue
-				return new AlphabeticCharacter(value);
-			}
-		});*/
+		DataStream<Person> outDataStream = fuzzyWhere.transform(inputDataStream, youngPeopleFilter);
 
-		//TODO: do zmiany to podanie jako argument new PersonProjection()
-		DataStream<PersonProjection> outDataStream = fuzzySelect.transform(inputDataStream, new PersonProjection());
+//		IFuzzySelect<PersonProjection> fuzzySelect = new FuzzySelect<PersonProjection>();
+//		DataStream<PersonProjection> outDataStream = fuzzySelect.transform(inputDataStream, new PersonProjection());
 
 		inputDataStream.print();
-
 		outDataStream.print();
 
 		env.execute("Window WordCount");

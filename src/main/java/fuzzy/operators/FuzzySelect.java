@@ -5,22 +5,19 @@ package fuzzy.operators;
 import fuzzy.dtos.Person;
 import fuzzy.operators.interfaces.IFuzzyProjection;
 import fuzzy.operators.interfaces.IFuzzySelect;
-import fuzzy.variables.AlphabeticCharacter;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.typeinfo.TypeHint;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.api.datastream.DataStream;
 
 public class FuzzySelect<T> implements IFuzzySelect<T> {
     @Override
-    public DataStream<T> transform(DataStream<Person> input, IFuzzyProjection<T> output /*MapFunction<K, T> mapFunction*/) {
+    public DataStream<T> transform(DataStream<Person> input, IFuzzyProjection<T> projection) {
         MapFunction<Person, T> mapFunction = new MapFunction<Person, T>() {
             @Override
             public T map(Person value) {
-                return output.create(value);
+                return projection.create(value);
             }
         };
 
-        return input.map(mapFunction);
+        return input.map(mapFunction).returns((Class<T>) projection.getClass());
     }
 }

@@ -1,8 +1,8 @@
 package fuzzy.variables;
 
-import java.io.Serializable;
+import fuzzy.operators.interfaces.ILinguisticVariable;
 
-public class LinguisticAge {
+public class LinguisticAge implements ILinguisticVariable {
     public int value;
     public String linguisticValue;
     public LinguisticAge(int age) {
@@ -16,7 +16,7 @@ public class LinguisticAge {
     }
 
     @Override
-    public String toString() {
+    public String returnStringValue() {
         return this.linguisticValue;
     }
 }
