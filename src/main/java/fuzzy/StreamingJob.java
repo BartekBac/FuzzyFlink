@@ -19,6 +19,8 @@
 package fuzzy;
 
 import fuzzy.dtos.Person;
+import fuzzy.dtos.WalkVelocity;
+import fuzzy.operators.FuzzyJoin;
 import fuzzy.operators.FuzzySelect;
 import fuzzy.operators.FuzzyWhere;
 import fuzzy.operators.YoungPeopleFilter;
@@ -26,8 +28,10 @@ import fuzzy.operators.interfaces.IFuzzyFilter;
 import fuzzy.operators.interfaces.IFuzzySelect;
 import fuzzy.operators.interfaces.IFuzzyWhere;
 import fuzzy.operators.projections.PersonProjection;
+import fuzzy.operators.projections.WalkingPersonProjection;
 import fuzzy.variables.AlphabeticCharacter;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.operators.DataSource;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -61,18 +65,33 @@ public class StreamingJob {
 		);
 		DataStream<Person> inputDataStream = env.fromCollection(input);
 
+		List<WalkVelocity> inputWalkVelocity = Arrays.asList(
+				new WalkVelocity(0, "fast", 14),
+				new WalkVelocity(1, "slow", 50)
+		);
+		DataStream<WalkVelocity> inputWalkVelocityDataStream = env.fromCollection(inputWalkVelocity);
+
+		/*
+		WHERE
 		IFuzzyFilter youngPeopleFilter = new YoungPeopleFilter();
 		youngPeopleFilter.setLowerBound(13);
 		youngPeopleFilter.setUpperBound(20);
 		youngPeopleFilter.setMembershipCoefficient(0.5);
 		IFuzzyWhere<Person> fuzzyWhere = new FuzzyWhere();
 
-		DataStream<Person> outDataStream = fuzzyWhere.transform(inputDataStream, youngPeopleFilter);
+		DataStream<Person> outDataStream = fuzzyWhere.transform(inputDataStream, youngPeopleFilter);*/
 
-//		IFuzzySelect<PersonProjection> fuzzySelect = new FuzzySelect<PersonProjection>();
-//		DataStream<PersonProjection> outDataStream = fuzzySelect.transform(inputDataStream, new PersonProjection());
+		/*
+		SELECT
+		IFuzzySelect<PersonProjection> fuzzySelect = new FuzzySelect<PersonProjection>();
+		DataStream<PersonProjection> outDataStream = fuzzySelect.transform(inputDataStream, new PersonProjection());
+		 */
 
-		inputDataStream.print();
+		//JOIN
+		FuzzyJoin fuzzyJoin = new FuzzyJoin();
+		DataStream<WalkingPersonProjection> outDataStream = fuzzyJoin.transform(inputDataStream, inputWalkVelocityDataStream, person -> person.age, walkVelocity -> walkVelocity.age);
+
+		//inputDataStream.print();
 		outDataStream.print();
 
 		env.execute("Window WordCount");
