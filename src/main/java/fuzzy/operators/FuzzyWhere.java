@@ -2,25 +2,24 @@ package fuzzy.operators;
 
 /*TODO: Jakub */
 
-import fuzzy.dtos.Person;
 import fuzzy.operators.interfaces.IFilteringStrategy;
 import fuzzy.operators.interfaces.IFuzzyFilter;
 import fuzzy.operators.interfaces.IFuzzyWhere;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 
-public class FuzzyWhere implements IFuzzyWhere {
+public class FuzzyWhere<T> implements IFuzzyWhere<T> {
     @Override
-    public DataStream transform(DataStream input, IFuzzyFilter fuzzyFilter) {
+    public DataStream<T> transform(DataStream<T> input, IFuzzyFilter<T> fuzzyFilter) {
         IFilteringStrategy filteringStrategy = new DefaultFilteringStrategy();
-            FilterFunction<Person> filterFunction = new FilterFunction<Person>() {
+            FilterFunction<T> filterFunction = new FilterFunction<T>() {
             @Override
-            public boolean filter(Person person) throws Exception {
+            public boolean filter(T object) throws Exception {
                 return filteringStrategy.filter(
                         fuzzyFilter.getLowerBound(),
                         fuzzyFilter.getUpperBound(),
                         fuzzyFilter.getMembershipCoefficient(),
-                        fuzzyFilter.getFilteredValue(person));
+                        fuzzyFilter.getFilteredValue(object));
             }
         };
 

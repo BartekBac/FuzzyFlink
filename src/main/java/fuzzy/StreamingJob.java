@@ -20,16 +20,14 @@ package fuzzy;
 
 import fuzzy.dtos.Person;
 import fuzzy.dtos.WalkVelocity;
-import fuzzy.operators.FuzzyJoin;
-import fuzzy.operators.FuzzySelect;
-import fuzzy.operators.FuzzyWhere;
-import fuzzy.operators.YoungPeopleFilter;
-import fuzzy.operators.interfaces.IFuzzyFilter;
-import fuzzy.operators.interfaces.IFuzzySelect;
-import fuzzy.operators.interfaces.IFuzzyWhere;
+import fuzzy.operators.*;
+import fuzzy.operators.interfaces.*;
+import fuzzy.operators.joinDefinitions.WalkingPersonJoinDefinition;
 import fuzzy.operators.projections.PersonProjection;
 import fuzzy.operators.projections.WalkingPersonProjection;
 import fuzzy.variables.AlphabeticCharacter;
+import fuzzy.variables.LinguisticAge;
+import org.apache.flink.api.common.functions.JoinFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.operators.DataSource;
@@ -71,9 +69,9 @@ public class StreamingJob {
 		);
 		DataStream<WalkVelocity> inputWalkVelocityDataStream = env.fromCollection(inputWalkVelocity);
 
-		/*
-		WHERE
-		IFuzzyFilter youngPeopleFilter = new YoungPeopleFilter();
+
+		//WHERE
+		/*IFuzzyFilter<Person> youngPeopleFilter = new YoungPeopleFilter();
 		youngPeopleFilter.setLowerBound(13);
 		youngPeopleFilter.setUpperBound(20);
 		youngPeopleFilter.setMembershipCoefficient(0.5);
@@ -81,16 +79,36 @@ public class StreamingJob {
 
 		DataStream<Person> outDataStream = fuzzyWhere.transform(inputDataStream, youngPeopleFilter);*/
 
-		/*
-		SELECT
-		IFuzzySelect<PersonProjection> fuzzySelect = new FuzzySelect<PersonProjection>();
-		DataStream<PersonProjection> outDataStream = fuzzySelect.transform(inputDataStream, new PersonProjection());
-		 */
+
+		//SELECT
+		/*IFuzzySelect<PersonProjection, Person> fuzzySelect = new FuzzySelect();
+		DataStream<PersonProjection> outDataStream = fuzzySelect.transform(inputDataStream, new PersonProjection());*/
+
 
 		//JOIN
-		FuzzyJoin fuzzyJoin = new FuzzyJoin();
-		DataStream<WalkingPersonProjection> outDataStream = fuzzyJoin.transform(inputDataStream, inputWalkVelocityDataStream, person -> person.age, walkVelocity -> walkVelocity.age);
+		/*JoinFunction<Person, WalkVelocity, WalkingPersonProjection> joinFunction = new JoinFunction<Person, WalkVelocity, WalkingPersonProjection>(){
+			@Override
+			public WalkingPersonProjection join(Person object, WalkVelocity joined) {
+				return new WalkingPersonProjection(object,  joined);
+			}
+		};*/
+		IFuzzyJoinDefinition<WalkingPersonProjection, Person, WalkVelocity> joinDefinition = new WalkingPersonJoinDefinition();
 
+		//WalkingPersonJoinDefinition joinDefinition = new WalkingPersonJoinDefinition();
+
+		IFuzzyJoin<Person, WalkVelocity> fuzzyJoin = new FuzzyJoin();
+
+		DataStream<WalkingPersonProjection> outDataStream = fuzzyJoin.transform(inputDataStream, inputWalkVelocityDataStream, person -> new LinguisticAge(person.age).returnStringValue(), walkVelocity -> new LinguisticAge(walkVelocity.age).returnStringValue(), joinDefinition.getFunction());
+
+		/*
+		Nie działa z powodów opisanych w FuzzyNumericJoin
+		FuzzyNumericJoin<WalkingPersonProjection> fuzzyNumericJoin = new FuzzyNumericJoin<WalkingPersonProjection>();
+		DataStream<WalkingPersonProjection> outDataStream = fuzzyNumericJoin.transform(inputDataStream, inputWalkVelocityDataStream, new WalkingPersonProjection());*/
+
+		/*
+		// GROUP BY
+		FuzzyGroupBy<Person, String> fuzzyGroupBy = new FuzzyGroupBy();
+		DataStream<Person> outDataStream = fuzzyGroupBy.transform(inputDataStream, person -> new LinguisticAge(person.age).returnStringValue());*/
 		//inputDataStream.print();
 		outDataStream.print();
 

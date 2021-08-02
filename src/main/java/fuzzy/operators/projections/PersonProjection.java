@@ -6,7 +6,7 @@ import fuzzy.variables.LinguisticAge;
 
 import java.io.Serializable;
 
-public class PersonProjection implements IFuzzyProjection<PersonProjection>, Serializable {
+public class PersonProjection implements IFuzzyProjection<PersonProjection, Person>, Serializable {
 
     public String name;
     public String linguisticAge;

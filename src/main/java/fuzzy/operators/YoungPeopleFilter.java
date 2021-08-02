@@ -5,7 +5,7 @@ import fuzzy.operators.interfaces.IFuzzyFilter;
 
 import java.io.Serializable;
 
-public class YoungPeopleFilter implements IFuzzyFilter, Serializable {
+public class YoungPeopleFilter implements IFuzzyFilter<Person>, Serializable {
     private double lowerBound;
     private double upperBound;
     private double membershipCoefficient;

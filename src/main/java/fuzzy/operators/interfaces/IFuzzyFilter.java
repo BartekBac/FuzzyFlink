@@ -2,7 +2,7 @@ package fuzzy.operators.interfaces;
 
 import fuzzy.dtos.Person;
 
-public interface IFuzzyFilter {
+public interface IFuzzyFilter<T> {
     double getLowerBound();
     double getUpperBound();
     double getMembershipCoefficient();
@@ -11,5 +11,5 @@ public interface IFuzzyFilter {
     void setUpperBound(double value);
     void setMembershipCoefficient(double value);
 
-    double getFilteredValue(Person person);
+    double getFilteredValue(T object);
 }

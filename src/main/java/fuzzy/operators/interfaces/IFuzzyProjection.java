@@ -2,6 +2,6 @@ package fuzzy.operators.interfaces;
 
 import fuzzy.dtos.Person;
 
-public interface IFuzzyProjection<T> {
-    T create(Person person);
+public interface IFuzzyProjection<T, K> {
+    T create(K object);
 }

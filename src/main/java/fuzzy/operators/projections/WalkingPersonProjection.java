@@ -2,12 +2,14 @@ package fuzzy.operators.projections;
 
 import fuzzy.dtos.Person;
 import fuzzy.dtos.WalkVelocity;
+import fuzzy.operators.interfaces.IFuzzyJoinProjection;
 import fuzzy.operators.interfaces.IFuzzyProjection;
 import fuzzy.variables.LinguisticAge;
+import org.apache.flink.api.common.functions.JoinFunction;
 
 import java.io.Serializable;
 
-public class WalkingPersonProjection implements Serializable {
+public class WalkingPersonProjection implements IFuzzyJoinProjection<WalkingPersonProjection, Person, WalkVelocity>, Serializable {
 
     public String name;
     public String description;
