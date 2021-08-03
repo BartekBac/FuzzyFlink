@@ -18,7 +18,28 @@
 
 package fuzzy;
 
+import fuzzy.dtos.Person;
+import fuzzy.dtos.WalkVelocity;
+import fuzzy.operators.groupby.FuzzyGroupBy;
+import fuzzy.operators.join.FuzzyJoin;
+import fuzzy.operators.join.IFuzzyJoin;
+import fuzzy.operators.join.joinDefinitions.IFuzzyJoinDefinition;
+import fuzzy.operators.join.joinDefinitions.WalkingPersonJoinDefinition;
+import fuzzy.operators.select.projections.PersonProjection;
+import fuzzy.operators.join.projections.WalkingPersonProjection;
+import fuzzy.operators.select.FuzzySelect;
+import fuzzy.operators.select.IFuzzySelect;
+import fuzzy.operators.where.FuzzyWhere;
+import fuzzy.operators.where.IFuzzyFilter;
+import fuzzy.operators.where.IFuzzyWhere;
+import fuzzy.operators.where.YoungPeopleFilter;
+import fuzzy.variables.LinguisticAge;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+
+import java.util.Arrays;
+import java.util.List;
+
 
 /**
  * Skeleton for a Flink Streaming Job.
@@ -38,27 +59,49 @@ public class StreamingJob {
 		// set up the streaming execution environment
 		final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-		/*
-		 * Here, you can start creating your execution plan for Flink.
-		 *
-		 * Start with getting some data from the environment, like
-		 * 	env.readTextFile(textPath);
-		 *
-		 * then, transform the resulting DataStream<String> using operations
-		 * like
-		 * 	.filter()
-		 * 	.flatMap()
-		 * 	.join()
-		 * 	.coGroup()
-		 *
-		 * and many more.
-		 * Have a look at the programming guide for the Java API:
-		 *
-		 * https://flink.apache.org/docs/latest/apis/streaming/index.html
-		 *
-		 */
+		//DATA DEFINITION//
+		List<Person> input = Arrays.asList(
+				new Person(0, "arek", 14),
+				new Person(1, "marek", 26),
+				new Person(2, "darek", 50)
+		);
+		DataStream<Person> inputDataStream = env.fromCollection(input);
 
-		// execute program
-		env.execute("Flink Streaming Java API Skeleton");
+		List<WalkVelocity> inputWalkVelocity = Arrays.asList(
+				new WalkVelocity(0, "fast", 14),
+				new WalkVelocity(1, "slow", 50)
+		);
+		DataStream<WalkVelocity> inputWalkVelocityDataStream = env.fromCollection(inputWalkVelocity);
+
+
+	    //WHERE//
+		// filter definition
+		IFuzzyFilter<Person> youngPeopleFilter = new YoungPeopleFilter();
+		youngPeopleFilter.setLowerBound(13);
+		youngPeopleFilter.setUpperBound(20);
+		youngPeopleFilter.setMembershipCoefficient(0.2);
+		IFuzzyWhere<Person> fuzzyWhere = new FuzzyWhere();
+		DataStream<Person> outWhereDataStream = fuzzyWhere.transform(inputDataStream, youngPeopleFilter);
+
+		//SELECT//
+		IFuzzySelect<PersonProjection, Person> fuzzySelect = new FuzzySelect();
+		DataStream<PersonProjection> outSelectDataStream = fuzzySelect.transform(inputDataStream, new PersonProjection());
+
+		//JOIN//
+		IFuzzyJoinDefinition<WalkingPersonProjection, Person, WalkVelocity> joinDefinition = new WalkingPersonJoinDefinition();
+		IFuzzyJoin<Person, WalkVelocity> fuzzyJoin = new FuzzyJoin();
+		DataStream<WalkingPersonProjection> outJoinDataStream = fuzzyJoin.transform(inputDataStream, inputWalkVelocityDataStream, person -> new LinguisticAge(person.age).returnStringValue(), walkVelocity -> new LinguisticAge(walkVelocity.age).returnStringValue(), joinDefinition.getFunction());
+
+
+		//GROUP BY//
+		FuzzyGroupBy<Person, String> fuzzyGroupBy = new FuzzyGroupBy();
+		DataStream<Person> outGroupByDataStream = fuzzyGroupBy.transform(inputDataStream, person -> new LinguisticAge(person.age).returnStringValue());
+
+		outWhereDataStream.print("Fuzzy Where");
+		outSelectDataStream.print("Fuzzy Select");
+		outJoinDataStream.print("Fuzzy Join");
+		outGroupByDataStream.print("Fuzzy Group By");
+
+		env.execute("Fuzzy transformations");
 	}
 }
