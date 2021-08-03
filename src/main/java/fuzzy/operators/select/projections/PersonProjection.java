@@ -18,7 +18,7 @@ public class PersonProjection implements IFuzzyProjection<PersonProjection, Pers
     @Override
     public PersonProjection create(Person person) {
         this.name = person.name;
-        this.linguisticAge = new LinguisticAge(person.age).linguisticValue;
+        this.linguisticAge = new LinguisticAge(person.age).linguisticValue();
         return this;
     }
 

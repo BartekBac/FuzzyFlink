@@ -90,12 +90,12 @@ public class StreamingJob {
 		//JOIN//
 		IFuzzyJoinDefinition<WalkingPersonProjection, Person, WalkVelocity> joinDefinition = new WalkingPersonJoinDefinition();
 		IFuzzyJoin<Person, WalkVelocity> fuzzyJoin = new FuzzyJoin();
-		DataStream<WalkingPersonProjection> outJoinDataStream = fuzzyJoin.transform(inputDataStream, inputWalkVelocityDataStream, person -> new LinguisticAge(person.age).returnStringValue(), walkVelocity -> new LinguisticAge(walkVelocity.age).returnStringValue(), joinDefinition.getFunction());
+		DataStream<WalkingPersonProjection> outJoinDataStream = fuzzyJoin.transform(inputDataStream, inputWalkVelocityDataStream, person -> new LinguisticAge(person.age).linguisticValue(), walkVelocity -> new LinguisticAge(walkVelocity.age).linguisticValue(), joinDefinition.getFunction());
 
 
 		//GROUP BY//
 		FuzzyGroupBy<Person, String> fuzzyGroupBy = new FuzzyGroupBy();
-		DataStream<Person> outGroupByDataStream = fuzzyGroupBy.transform(inputDataStream, person -> new LinguisticAge(person.age).returnStringValue());
+		DataStream<Person> outGroupByDataStream = fuzzyGroupBy.transform(inputDataStream, person -> new LinguisticAge(person.age).linguisticValue());
 
 		outWhereDataStream.print("Fuzzy Where");
 		outSelectDataStream.print("Fuzzy Select");

@@ -1,8 +1,8 @@
 package fuzzy.variables;
 
 public class LinguisticAge implements ILinguisticVariable {
-    public int value;
-    public String linguisticValue;
+    private int value;
+    private String linguisticValue;
     public LinguisticAge(int age) {
         this.value = age;
 
@@ -14,7 +14,7 @@ public class LinguisticAge implements ILinguisticVariable {
     }
 
     @Override
-    public String returnStringValue() {
+    public String linguisticValue() {
         return this.linguisticValue;
     }
 }
