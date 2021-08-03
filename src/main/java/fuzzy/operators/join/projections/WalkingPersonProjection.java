@@ -1,11 +1,7 @@
-package fuzzy.operators.projections;
+package fuzzy.operators.join.projections;
 
 import fuzzy.dtos.Person;
 import fuzzy.dtos.WalkVelocity;
-import fuzzy.operators.interfaces.IFuzzyJoinProjection;
-import fuzzy.operators.interfaces.IFuzzyProjection;
-import fuzzy.variables.LinguisticAge;
-import org.apache.flink.api.common.functions.JoinFunction;
 
 import java.io.Serializable;
 

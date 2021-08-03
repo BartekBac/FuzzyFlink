@@ -1,7 +1,6 @@
-package fuzzy.operators.projections;
+package fuzzy.operators.select.projections;
 
 import fuzzy.dtos.Person;
-import fuzzy.operators.interfaces.IFuzzyProjection;
 import fuzzy.variables.LinguisticAge;
 
 import java.io.Serializable;

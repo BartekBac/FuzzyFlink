@@ -1,6 +1,6 @@
-package fuzzy.operators;
+package fuzzy.operators.where;
 
-import fuzzy.operators.interfaces.IFilteringStrategy;
+import fuzzy.operators.where.IFilteringStrategy;
 
 import java.io.Serializable;
 

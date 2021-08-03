@@ -1,9 +1,8 @@
-package fuzzy.operators;
+package fuzzy.operators.select;
 
 /*TODO: Bartłomiej K*/
 
-import fuzzy.operators.interfaces.IFuzzyProjection;
-import fuzzy.operators.interfaces.IFuzzySelect;
+import fuzzy.operators.select.projections.IFuzzyProjection;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 

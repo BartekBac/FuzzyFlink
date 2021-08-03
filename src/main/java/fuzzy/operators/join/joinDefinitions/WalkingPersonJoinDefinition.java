@@ -1,9 +1,8 @@
-package fuzzy.operators.joinDefinitions;
+package fuzzy.operators.join.joinDefinitions;
 
 import fuzzy.dtos.Person;
 import fuzzy.dtos.WalkVelocity;
-import fuzzy.operators.interfaces.IFuzzyJoinDefinition;
-import fuzzy.operators.projections.WalkingPersonProjection;
+import fuzzy.operators.join.projections.WalkingPersonProjection;
 import org.apache.flink.api.common.functions.JoinFunction;
 
 public class WalkingPersonJoinDefinition implements IFuzzyJoinDefinition<WalkingPersonProjection, Person, WalkVelocity> {

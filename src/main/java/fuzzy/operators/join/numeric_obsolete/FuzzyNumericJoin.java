@@ -1,19 +1,11 @@
-package fuzzy.operators;
+package fuzzy.operators.join.numeric_obsolete;
 
 /*TODO: Bartłomiej C*/
 
 import fuzzy.dtos.Person;
 import fuzzy.dtos.WalkVelocity;
-import fuzzy.operators.interfaces.IFilteringStrategy;
-import fuzzy.operators.interfaces.IFuzzyJoinProjection;
-import fuzzy.operators.interfaces.IJoiningStrategy;
-import org.apache.flink.api.common.functions.FilterFunction;
-import org.apache.flink.api.common.functions.JoinFunction;
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.java.functions.KeySelector;
+import fuzzy.operators.join.projections.IFuzzyJoinProjection;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 
 public class FuzzyNumericJoin<T> {
     public DataStream<T> transform(DataStream<Person> input, DataStream<WalkVelocity> joinStream, IFuzzyJoinProjection<T, Person, WalkVelocity> projection) {

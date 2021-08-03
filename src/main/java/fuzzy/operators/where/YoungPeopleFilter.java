@@ -1,7 +1,7 @@
-package fuzzy.operators;
+package fuzzy.operators.where;
 
 import fuzzy.dtos.Person;
-import fuzzy.operators.interfaces.IFuzzyFilter;
+import fuzzy.operators.where.IFuzzyFilter;
 
 import java.io.Serializable;
 

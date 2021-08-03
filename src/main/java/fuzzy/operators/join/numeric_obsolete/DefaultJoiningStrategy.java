@@ -1,7 +1,4 @@
-package fuzzy.operators;
-
-import fuzzy.operators.interfaces.IFilteringStrategy;
-import fuzzy.operators.interfaces.IJoiningStrategy;
+package fuzzy.operators.join.numeric_obsolete;
 
 import java.io.Serializable;
 

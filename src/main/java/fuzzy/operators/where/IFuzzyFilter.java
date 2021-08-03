@@ -1,4 +1,4 @@
-package fuzzy.operators.interfaces;
+package fuzzy.operators.where;
 
 import fuzzy.dtos.Person;
 

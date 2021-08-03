@@ -1,10 +1,7 @@
-package fuzzy.operators;
+package fuzzy.operators.where;
 
 /*TODO: Jakub */
 
-import fuzzy.operators.interfaces.IFilteringStrategy;
-import fuzzy.operators.interfaces.IFuzzyFilter;
-import fuzzy.operators.interfaces.IFuzzyWhere;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 

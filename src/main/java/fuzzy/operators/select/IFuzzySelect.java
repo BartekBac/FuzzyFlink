@@ -1,6 +1,6 @@
-package fuzzy.operators.interfaces;
+package fuzzy.operators.select;
 
-import fuzzy.dtos.Person;
+import fuzzy.operators.select.projections.IFuzzyProjection;
 import org.apache.flink.streaming.api.datastream.DataStream;
 
 public interface IFuzzySelect<T, K> {

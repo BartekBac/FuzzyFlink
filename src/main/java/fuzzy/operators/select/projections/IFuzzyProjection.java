@@ -1,4 +1,4 @@
-package fuzzy.operators.interfaces;
+package fuzzy.operators.select.projections;
 
 import fuzzy.dtos.Person;
 

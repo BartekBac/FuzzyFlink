@@ -1,7 +1,5 @@
 package fuzzy.variables;
 
-import fuzzy.operators.interfaces.ILinguisticVariable;
-
 public class LinguisticAge implements ILinguisticVariable {
     public int value;
     public String linguisticValue;
