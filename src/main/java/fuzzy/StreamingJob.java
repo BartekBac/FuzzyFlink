@@ -27,10 +27,12 @@ import fuzzy.operators.projections.PersonProjection;
 import fuzzy.operators.projections.WalkingPersonProjection;
 import fuzzy.variables.AlphabeticCharacter;
 import fuzzy.variables.LinguisticAge;
+import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.functions.JoinFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.operators.DataSource;
+import org.apache.flink.core.execution.JobClient;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
@@ -56,6 +58,7 @@ public class StreamingJob {
 		// set up the streaming execution environment
 		final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
+		//DATA DEFINITION//
 		List<Person> input = Arrays.asList(
 				new Person(0, "arek", 14),
 				new Person(1, "marek", 26),
@@ -70,48 +73,34 @@ public class StreamingJob {
 		DataStream<WalkVelocity> inputWalkVelocityDataStream = env.fromCollection(inputWalkVelocity);
 
 
-		//WHERE
-		/*IFuzzyFilter<Person> youngPeopleFilter = new YoungPeopleFilter();
+	    //WHERE//
+		// filter definition
+		IFuzzyFilter<Person> youngPeopleFilter = new YoungPeopleFilter();
 		youngPeopleFilter.setLowerBound(13);
 		youngPeopleFilter.setUpperBound(20);
-		youngPeopleFilter.setMembershipCoefficient(0.5);
+		youngPeopleFilter.setMembershipCoefficient(0.2);
 		IFuzzyWhere<Person> fuzzyWhere = new FuzzyWhere();
+		DataStream<Person> outWhereDataStream = fuzzyWhere.transform(inputDataStream, youngPeopleFilter);
 
-		DataStream<Person> outDataStream = fuzzyWhere.transform(inputDataStream, youngPeopleFilter);*/
+		//SELECT//
+		IFuzzySelect<PersonProjection, Person> fuzzySelect = new FuzzySelect();
+		DataStream<PersonProjection> outSelectDataStream = fuzzySelect.transform(inputDataStream, new PersonProjection());
 
-
-		//SELECT
-		/*IFuzzySelect<PersonProjection, Person> fuzzySelect = new FuzzySelect();
-		DataStream<PersonProjection> outDataStream = fuzzySelect.transform(inputDataStream, new PersonProjection());*/
-
-
-		//JOIN
-		/*JoinFunction<Person, WalkVelocity, WalkingPersonProjection> joinFunction = new JoinFunction<Person, WalkVelocity, WalkingPersonProjection>(){
-			@Override
-			public WalkingPersonProjection join(Person object, WalkVelocity joined) {
-				return new WalkingPersonProjection(object,  joined);
-			}
-		};*/
+		//JOIN//
 		IFuzzyJoinDefinition<WalkingPersonProjection, Person, WalkVelocity> joinDefinition = new WalkingPersonJoinDefinition();
-
-		//WalkingPersonJoinDefinition joinDefinition = new WalkingPersonJoinDefinition();
-
 		IFuzzyJoin<Person, WalkVelocity> fuzzyJoin = new FuzzyJoin();
+		DataStream<WalkingPersonProjection> outJoinDataStream = fuzzyJoin.transform(inputDataStream, inputWalkVelocityDataStream, person -> new LinguisticAge(person.age).returnStringValue(), walkVelocity -> new LinguisticAge(walkVelocity.age).returnStringValue(), joinDefinition.getFunction());
 
-		DataStream<WalkingPersonProjection> outDataStream = fuzzyJoin.transform(inputDataStream, inputWalkVelocityDataStream, person -> new LinguisticAge(person.age).returnStringValue(), walkVelocity -> new LinguisticAge(walkVelocity.age).returnStringValue(), joinDefinition.getFunction());
 
-		/*
-		Nie działa z powodów opisanych w FuzzyNumericJoin
-		FuzzyNumericJoin<WalkingPersonProjection> fuzzyNumericJoin = new FuzzyNumericJoin<WalkingPersonProjection>();
-		DataStream<WalkingPersonProjection> outDataStream = fuzzyNumericJoin.transform(inputDataStream, inputWalkVelocityDataStream, new WalkingPersonProjection());*/
-
-		/*
-		// GROUP BY
+		//GROUP BY//
 		FuzzyGroupBy<Person, String> fuzzyGroupBy = new FuzzyGroupBy();
-		DataStream<Person> outDataStream = fuzzyGroupBy.transform(inputDataStream, person -> new LinguisticAge(person.age).returnStringValue());*/
-		//inputDataStream.print();
-		outDataStream.print();
+		DataStream<Person> outGroupByDataStream = fuzzyGroupBy.transform(inputDataStream, person -> new LinguisticAge(person.age).returnStringValue());
 
-		env.execute("Window WordCount");
+		outWhereDataStream.print("Fuzzy Where");
+		outSelectDataStream.print("Fuzzy Select");
+		outJoinDataStream.print("Fuzzy Join");
+		outGroupByDataStream.print("Fuzzy Group By");
+
+		env.execute("Fuzzy transformations");
 	}
 }

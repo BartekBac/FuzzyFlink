@@ -16,7 +16,7 @@ public class DefaultFilteringStrategy implements IFilteringStrategy, Serializabl
         // center = 16.5
         // distanceFromCenter = 2.5
         // acceptanceArea = 16.5 - 13 = 3.5
-        // resultCoefficient = 2.5 / 3.5 = 0.7142857142857143
+        // resultCoefficient = 1 - (2.5 / 3.5) = 1 - (0.7142857142857143) = 0.285...
         // return true
 
         double center = (upperBound - lowerBound) / 2 + lowerBound;
@@ -27,7 +27,7 @@ public class DefaultFilteringStrategy implements IFilteringStrategy, Serializabl
             return false;
         }
 
-        double resultCoefficient = distanceFromCenter / acceptanceArea;
+        double resultCoefficient = 1 - (distanceFromCenter / acceptanceArea);
 
         return resultCoefficient > membershipCoefficient;
     }
