@@ -1,8 +1,7 @@
-package fuzzy.operators.join.numeric;
+package fuzzy.operators.join.numeric_obsolete2;
 
 /*TODO: Bartłomiej C*/
 
-import fuzzy.operators.join.IFuzzyJoin;
 import org.apache.flink.api.common.functions.JoinFunction;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.datastream.DataStream;

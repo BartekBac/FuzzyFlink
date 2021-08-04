@@ -25,20 +25,21 @@ import fuzzy.operators.join.FuzzyJoin;
 import fuzzy.operators.join.IFuzzyJoin;
 import fuzzy.operators.join.joinDefinitions.IFuzzyJoinDefinition;
 import fuzzy.operators.join.joinDefinitions.WalkingPersonJoinDefinition;
+import fuzzy.operators.join.numeric_obsolete2.FuzzyNumericJoin;
+import fuzzy.operators.join.numeric_obsolete2.IFuzzyNumericJoin;
+import fuzzy.operators.join.numeric_obsolete2.NumericJoinSelector;
 import fuzzy.operators.select.projections.PersonProjection;
 import fuzzy.operators.join.projections.WalkingPersonProjection;
 import fuzzy.operators.select.FuzzySelect;
 import fuzzy.operators.select.IFuzzySelect;
-import fuzzy.operators.where.FuzzyWhere;
-import fuzzy.operators.where.IFuzzyFilter;
-import fuzzy.operators.where.IFuzzyWhere;
-import fuzzy.operators.where.YoungPeopleFilter;
+import fuzzy.operators.where.*;
 import fuzzy.variables.LinguisticAge;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 
 /**
@@ -81,7 +82,9 @@ public class StreamingJob {
 		youngPeopleFilter.setUpperBound(20);
 		youngPeopleFilter.setMembershipCoefficient(0.2);
 		IFuzzyWhere<Person> fuzzyWhere = new FuzzyWhere();
-		DataStream<Person> outWhereDataStream = fuzzyWhere.transform(inputDataStream, youngPeopleFilter);
+		//DataStream<Person> outWhereDataStream = fuzzyWhere.transform(inputDataStream, youngPeopleFilter);
+
+		DataStream<Person> outWhereDataStream = fuzzyWhere.transform(inputDataStream, new MyClass());
 
 		//SELECT//
 		IFuzzySelect<PersonProjection, Person> fuzzySelect = new FuzzySelect();
