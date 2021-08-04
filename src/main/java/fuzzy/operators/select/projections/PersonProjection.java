@@ -3,9 +3,7 @@ package fuzzy.operators.select.projections;
 import fuzzy.dtos.Person;
 import fuzzy.variables.LinguisticAge;
 
-import java.io.Serializable;
-
-public class PersonProjection implements IFuzzyProjection<PersonProjection, Person>, Serializable {
+public class PersonProjection implements IFuzzyProjection<PersonProjection, Person> {
 
     public String name;
     public String linguisticAge;
