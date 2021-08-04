@@ -1,10 +1,10 @@
-package fuzzy.operators.where;
+package fuzzy.operators.where.around;
 
-import fuzzy.operators.where.IFilteringStrategy;
+import fuzzy.operators.where.around.IComputingMethod;
 
 import java.io.Serializable;
 
-public class DefaultFilteringStrategy implements IFilteringStrategy, Serializable {
+public class TriangleMethod implements IComputingMethod, Serializable {
     @Override
     public boolean filter(double lowerBound, double upperBound, double membershipCoefficient, double filteredValue) {
         // lowerBound = 13
@@ -29,6 +29,6 @@ public class DefaultFilteringStrategy implements IFilteringStrategy, Serializabl
 
         double resultCoefficient = 1 - (distanceFromCenter / acceptanceArea);
 
-        return resultCoefficient > membershipCoefficient;
+        return resultCoefficient >= membershipCoefficient;
     }
 }

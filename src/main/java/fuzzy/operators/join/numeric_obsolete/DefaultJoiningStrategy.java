@@ -4,31 +4,23 @@ import java.io.Serializable;
 
 public class DefaultJoiningStrategy implements IJoiningStrategy, Serializable {
     @Override
-    public boolean join(double lowerBound, double upperBound, double membershipCoefficient, double valueA, double valueB) {
-        // lowerBound = 13
-        // upperBound = 20
+    public boolean join(double maxDistance, double membershipCoefficient, double valueFrom, double valueTo) {
+        // maxDistance = 3.5
         // membershipCoefficient = 0.5 (0;1>
         // valueA = 14
         // valueB = 15
 
-
-        // center = 16.5
         // distanceBetween = 1
-        // acceptanceArea = 16.5 - 13 = 3.5
-        // remainingAcceptanceArea 3.5 - 1 = 2.5 (how far is the distance to the border)
-        // resultCoefficient = 2.5 / 3.5 = 0.7142857142857143
+        // resultCoefficient = 1 - (1 / 3.5) = 1 - (0.285...) = 0.714...
+        // return true
 
-        double center = (upperBound - lowerBound) / 2 + lowerBound;
-        double distanceBetween = Math.abs(valueA - valueB);
-        double acceptanceArea = center - lowerBound;
+        double distanceBetween = Math.abs(valueTo - valueFrom);
 
-        double remainingAcceptanceArea = acceptanceArea - distanceBetween;
-
-        if (remainingAcceptanceArea < 0.0) {
+        if (distanceBetween > maxDistance) {
             return false;
         }
 
-        double resultCoefficient = remainingAcceptanceArea / acceptanceArea;
+        double resultCoefficient = 1 - (distanceBetween / maxDistance);
 
         return resultCoefficient > membershipCoefficient;
     }

@@ -1,7 +1,7 @@
 package fuzzy.operators.select.projections;
 
-import fuzzy.dtos.Person;
+import java.io.Serializable;
 
-public interface IFuzzyProjection<T, K> {
+public interface IFuzzyProjection<T, K> extends Serializable {
     T create(K object);
 }
