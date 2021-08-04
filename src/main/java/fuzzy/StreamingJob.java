@@ -29,10 +29,8 @@ import fuzzy.operators.select.projections.PersonProjection;
 import fuzzy.operators.join.projections.WalkingPersonProjection;
 import fuzzy.operators.select.FuzzySelect;
 import fuzzy.operators.select.IFuzzySelect;
-import fuzzy.operators.where.FuzzyWhere;
-import fuzzy.operators.where.IFuzzyFilter;
-import fuzzy.operators.where.IFuzzyWhere;
-import fuzzy.operators.where.YoungPeopleFilter;
+import fuzzy.operators.where.*;
+import fuzzy.operators.where.around.Around;
 import fuzzy.variables.LinguisticAge;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -63,7 +61,7 @@ public class StreamingJob {
 		List<Person> input = Arrays.asList(
 				new Person(0, "arek", 14),
 				new Person(1, "marek", 26),
-				new Person(2, "darek", 50)
+				new Person(2, "jarek", 50)
 		);
 		DataStream<Person> inputDataStream = env.fromCollection(input);
 
@@ -75,27 +73,38 @@ public class StreamingJob {
 
 
 	    //WHERE//
-		// filter definition
-		IFuzzyFilter<Person> youngPeopleFilter = new YoungPeopleFilter();
-		youngPeopleFilter.setLowerBound(13);
-		youngPeopleFilter.setUpperBound(20);
-		youngPeopleFilter.setMembershipCoefficient(0.2);
 		IFuzzyWhere<Person> fuzzyWhere = new FuzzyWhere();
-		DataStream<Person> outWhereDataStream = fuzzyWhere.transform(inputDataStream, youngPeopleFilter);
+		Around around = new Around();
+		IFuzzyFilter<Person> filterConditions = (person) ->	around.filter(person.age, 0.2, 13, 20) || person.name.equals("jarek");
+		DataStream<Person> outWhereDataStream = fuzzyWhere.transform(
+				inputDataStream,
+				filterConditions
+		);
 
 		//SELECT//
 		IFuzzySelect<PersonProjection, Person> fuzzySelect = new FuzzySelect();
-		DataStream<PersonProjection> outSelectDataStream = fuzzySelect.transform(inputDataStream, new PersonProjection());
+		DataStream<PersonProjection> outSelectDataStream = fuzzySelect.transform(
+				inputDataStream,
+				new PersonProjection()
+		);
 
 		//JOIN//
-		IFuzzyJoinDefinition<WalkingPersonProjection, Person, WalkVelocity> joinDefinition = new WalkingPersonJoinDefinition();
 		IFuzzyJoin<Person, WalkVelocity> fuzzyJoin = new FuzzyJoin();
-		DataStream<WalkingPersonProjection> outJoinDataStream = fuzzyJoin.transform(inputDataStream, inputWalkVelocityDataStream, person -> new LinguisticAge(person.age).returnStringValue(), walkVelocity -> new LinguisticAge(walkVelocity.age).returnStringValue(), joinDefinition.getFunction());
-
+		IFuzzyJoinDefinition<WalkingPersonProjection, Person, WalkVelocity> joinDefinition = new WalkingPersonJoinDefinition();
+		DataStream<WalkingPersonProjection> outJoinDataStream = fuzzyJoin.transform(
+				inputDataStream,
+				inputWalkVelocityDataStream,
+				person -> new LinguisticAge(person.age).linguisticValue(),
+				walkVelocity -> new LinguisticAge(walkVelocity.age).linguisticValue(),
+				joinDefinition.getFunction()
+		);
 
 		//GROUP BY//
 		FuzzyGroupBy<Person, String> fuzzyGroupBy = new FuzzyGroupBy();
-		DataStream<Person> outGroupByDataStream = fuzzyGroupBy.transform(inputDataStream, person -> new LinguisticAge(person.age).returnStringValue());
+		DataStream<Person> outGroupByDataStream = fuzzyGroupBy.transform(
+				inputDataStream,
+				person -> new LinguisticAge(person.age).linguisticValue()
+		);
 
 		outWhereDataStream.print("Fuzzy Where");
 		outSelectDataStream.print("Fuzzy Select");

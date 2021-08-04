@@ -5,18 +5,15 @@ package fuzzy.operators.where;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 
+import java.util.function.Function;
+
 public class FuzzyWhere<T> implements IFuzzyWhere<T> {
     @Override
-    public DataStream<T> transform(DataStream<T> input, IFuzzyFilter<T> fuzzyFilter) {
-        IFilteringStrategy filteringStrategy = new DefaultFilteringStrategy();
+    public DataStream<T> transform(DataStream<T> input, Function<T, Boolean> conditions) {
             FilterFunction<T> filterFunction = new FilterFunction<T>() {
             @Override
             public boolean filter(T object) throws Exception {
-                return filteringStrategy.filter(
-                        fuzzyFilter.getLowerBound(),
-                        fuzzyFilter.getUpperBound(),
-                        fuzzyFilter.getMembershipCoefficient(),
-                        fuzzyFilter.getFilteredValue(object));
+                return conditions.apply(object);
             }
         };
 
